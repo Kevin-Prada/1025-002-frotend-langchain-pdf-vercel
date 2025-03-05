@@ -122,6 +122,10 @@ you will need to restart the frontend.*/
     fetchPdfs(value);
   }
 
+  const handlePDFClick = useCallback((pdf) => {
+    setSelectedPDF(pdf);
+  }, [setSelectedPDF]);
+
   return (
     <div className={styles.container}>
       <div className={styles.mainInputContainer}>
