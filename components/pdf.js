@@ -1,31 +1,37 @@
 import Image from 'next/image';
+import styles from '../styles/pdf.module.css';
 
-export default function PDF({ pdf, onPDFClick, onDelete, isSelected }) {
+export default function PDFComponent({ pdf, onDelete, onChange, onPDFClick }) {
   const handleClick = () => {
-    onPDFClick(pdf);
-  };
-
-  const handleDelete = (e) => {
-    e.stopPropagation();
-    onDelete(pdf.id);
+    if (onPDFClick) {
+      onPDFClick(pdf);
+    }
   };
 
   return (
-    <div 
-      className={`pdf-item ${isSelected ? 'selected' : ''}`} 
-      onClick={handleClick}
-    >
-      <div className="pdf-icon">
-        <Image src="/pdf-icon.png" width={50} height={50} alt="PDF icon" />
-      </div>
-      <div className="pdf-info">
+    <div className={styles.pdfItem} onClick={handleClick}>
+      <div className={styles.pdfInfo}>
         <h3>{pdf.name}</h3>
-        <p>Estado: {pdf.selected ? 'Seleccionado' : 'No seleccionado'}</p>
-      </div>
-      <div className="pdf-actions">
-        <button className="delete-button" onClick={handleDelete}>
-          <Image src="/delete-icon.png" width={20} height={20} alt="Delete icon" />
-        </button>
+        <div className={styles.pdfControls}>
+          <label>
+            <input
+              type="checkbox"
+              name="selected"
+              checked={pdf.selected}
+              onChange={(e) => onChange(e, pdf.id)}
+            />
+            Seleccionado
+          </label>
+          <button 
+            className={styles.deleteBtn} 
+            onClick={(e) => {
+              e.stopPropagation(); // Evita que el clic se propague al contenedor
+              onDelete(pdf.id);
+            }}
+          >
+            Eliminar
+          </button>
+        </div>
       </div>
     </div>
   );

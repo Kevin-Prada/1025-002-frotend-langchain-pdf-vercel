@@ -124,7 +124,13 @@ export default function PdfList() {
       </div>
       {!pdfs.length && <div>Loading...</div>}
       {pdfs.map((pdf) => (
-        <PDFComponent key={pdf.id} pdf={pdf} onDelete={handleDeletePdf} onChange={handlePdfChange} />
+        <PDFComponent 
+          key={pdf.id} 
+          pdf={pdf} 
+          onDelete={handleDeletePdf} 
+          onChange={handlePdfChange}
+          onPDFClick={handlePDFClick} 
+        />
       ))}
       <div className={styles.filters}>
         <button className={`${styles.filterBtn} ${filter === 'all' && styles.filterActive}`} onClick={() => handleFilterChange('all')}>Todos</button>

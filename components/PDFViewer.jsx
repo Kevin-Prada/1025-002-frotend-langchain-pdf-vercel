@@ -79,4 +79,4 @@ const PDFViewer = ({ selectedPDF }) => {
   );
 };
 
-export default PDFViewer;
+export default PDFViewer; 
