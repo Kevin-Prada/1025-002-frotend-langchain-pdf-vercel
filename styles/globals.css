@@ -1,0 +1,54 @@
+.qa-section {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .question-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+  }
+  
+  .question-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .ask-button {
+    padding: 10px 15px;
+    background-color: #4a6cf7;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  
+  .ask-button:hover {
+    background-color: #3a5bd9;
+  }
+  
+  .ask-button:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+  }
+  
+  .answer-container {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: white;
+    border-left: 4px solid #4a6cf7;
+    border-radius: 4px;
+  }
+  
+  .answer-container h4 {
+    margin-top: 0;
+    color: #4a6cf7;
+  }
+  
