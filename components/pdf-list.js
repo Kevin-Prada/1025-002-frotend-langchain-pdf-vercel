@@ -2,11 +2,13 @@ import styles from '../styles/pdf-list.module.css';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { debounce } from 'lodash';
 import PDFComponent from './pdf';
+import PDFViewer from './PDFViewer';
 
 export default function PdfList() {
   const [pdfs, setPdfs] = useState([]);
+  const [selectedPDF, setSelectedPDF] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
-  const [filter, setFilter] = useState();
+  const [filter, setFilter] = useState('all');
   const didFetchRef = useRef(false);
 
   useEffect(() => {
@@ -16,14 +18,21 @@ export default function PdfList() {
     }
   }, []);
 
-  async function fetchPdfs(selected) {
-    let path = '/pdfs';
-    if (selected !== undefined) {
-      path = `/pdfs?selected=${selected}`;
+  async function fetchPdfs(filterValue = 'all') {
+    try {
+      const url = filterValue === 'all' 
+        ? `${process.env.NEXT_PUBLIC_API_URL}/pdfs` 
+        : `${process.env.NEXT_PUBLIC_API_URL}/pdfs?selected=${filterValue === 'selected'}`;
+      
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Error al obtener los PDFs');
+      }
+      const data = await response.json();
+      setPdfs(data);
+    } catch (error) {
+      console.error('Error:', error);
     }
-    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + path);
-    const json = await res.json();
-    setPdfs(json);
   }
 
   const debouncedUpdatePdf = useCallback(debounce((pdf, fieldChanged) => {
@@ -77,9 +86,8 @@ you will need to restart the frontend.*/
     });
   }
 
-
   async function handleDeletePdf(id) {
-    const res = await fetch(process.env.NEXT_PUBLIC_API_URL + `/pdfs/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pdfs/${id}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' }
     });
@@ -87,6 +95,9 @@ you will need to restart the frontend.*/
     if (res.ok) {
       const copy = pdfs.filter((pdf) => pdf.id !== id);
       setPdfs(copy);
+      if (selectedPDF && selectedPDF.id === id) {
+        setSelectedPDF(null);
+      }
     }
   }
 
@@ -97,14 +108,14 @@ you will need to restart the frontend.*/
   const handleUpload = async (event) => {
     event.preventDefault();
     if (!selectedFile) {
-      alert("Please select file to load.");
+      alert("Por favor selecciona un archivo para subir.");
       return;
     }
 
     const formData = new FormData();
     formData.append("file", selectedFile);
 
-    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/pdfs/upload", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/pdfs/upload`, {
       method: "POST",
       body: formData,
     });
@@ -112,8 +123,9 @@ you will need to restart the frontend.*/
     if (response.ok) {
       const newPdf = await response.json();
       setPdfs([...pdfs, newPdf]);
+      setSelectedFile(null);
     } else {
-      alert("Error loading file.");
+      alert("Error al subir el archivo.");
     }
   };
 
@@ -124,14 +136,14 @@ you will need to restart the frontend.*/
 
   const handlePDFClick = useCallback((pdf) => {
     setSelectedPDF(pdf);
-  }, [setSelectedPDF]);
+  }, []);
 
   return (
     <div className={styles.container}>
       <div className={styles.mainInputContainer}>
         <form onSubmit={handleUpload}>
           <input className={styles.mainInput} type="file" accept=".pdf" onChange={handleFileChange} />
-          <button className={styles.loadBtn} type="submit">Load PDF</button>
+          <button className={styles.loadBtn} type="submit">Subir PDF</button>
         </form>
       </div>
       {!pdfs.length && <div>Loading...</div>}
@@ -139,9 +151,12 @@ you will need to restart the frontend.*/
         <PDFComponent key={pdf.id} pdf={pdf} onDelete={handleDeletePdf} onChange={handlePdfChange} />
       ))}
       <div className={styles.filters}>
-        <button className={`${styles.filterBtn} ${filter === undefined && styles.filterActive}`} onClick={() => handleFilterChange()}>See All</button>
-        <button className={`${styles.filterBtn} ${filter === true && styles.filterActive}`} onClick={() => handleFilterChange(true)}>See Selected</button>
-        <button className={`${styles.filterBtn} ${filter === false && styles.filterActive}`} onClick={() => handleFilterChange(false)}>See Not Selected</button>
+        <button className={`${styles.filterBtn} ${filter === 'all' && styles.filterActive}`} onClick={() => handleFilterChange('all')}>Todos</button>
+        <button className={`${styles.filterBtn} ${filter === 'selected' && styles.filterActive}`} onClick={() => handleFilterChange('selected')}>Seleccionados</button>
+        <button className={`${styles.filterBtn} ${filter === 'unselected' && styles.filterActive}`} onClick={() => handleFilterChange('unselected')}>No seleccionados</button>
+      </div>
+      <div className={styles.pdfViewerWrapper}>
+        {selectedPDF && <PDFViewer selectedPDF={selectedPDF} />}
       </div>
     </div>
   );

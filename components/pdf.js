@@ -1,39 +1,32 @@
 import Image from 'next/image';
-import styles from '../styles/pdf.module.css';
 
-export default function PDFComponent(props) {
-  const { pdf, onChange, onDelete } = props;
+export default function PDF({ pdf, onPDFClick, onDelete, isSelected }) {
+  const handleClick = () => {
+    onPDFClick(pdf);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete(pdf.id);
+  };
+
   return (
-    <div className={styles.pdfRow}>
-      <input
-        className={styles.pdfCheckbox}
-        name="selected"
-        type="checkbox"
-        checked={pdf.selected}
-        onChange={(e) => onChange(e, pdf.id)}
-      />
-      <input
-        className={styles.pdfInput}
-        autoComplete="off"
-        name="name"
-        type="text"
-        value={pdf.name}
-        onChange={(e) => onChange(e, pdf.id)}
-      />
-      <a
-        href={pdf.file}
-        target="_blank"
-        rel="noopener noreferrer"
-        className={styles.viewPdfLink}
-      >
+    <div 
+      className={`pdf-item ${isSelected ? 'selected' : ''}`} 
+      onClick={handleClick}
+    >
+      <div className="pdf-icon">
         <Image src="/pdf-icon.png" width={50} height={50} alt="PDF icon" />
-      </a>
-      <button
-        className={styles.deleteBtn}
-        onClick={() => onDelete(pdf.id)}
-      >
-        <Image src="/delete-outline.svg" width="24" height="24" />
-      </button>
+      </div>
+      <div className="pdf-info">
+        <h3>{pdf.name}</h3>
+        <p>Estado: {pdf.selected ? 'Seleccionado' : 'No seleccionado'}</p>
+      </div>
+      <div className="pdf-actions">
+        <button className="delete-button" onClick={handleDelete}>
+          <Image src="/delete-icon.png" width={20} height={20} alt="Delete icon" />
+        </button>
+      </div>
     </div>
   );
 }
